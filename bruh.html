@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Joke Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .joke-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .joke-text {
+            color: #333;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .joke-category {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #fadbd8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>😂 Joke Generator</h1>
+        
+        <div class="joke-box">
+            <div class="joke-text" id="jokeText">
+                Click the button to get a random joke!
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <button id="getJokeBtn" onclick="getJoke()">Get a Joke</button>
+        <p class="joke-category" id="jokeCategory"></p>
+    </div>
+
+    <script>
+        const API_URL = 'https://official-joke-api.appspot.com/random_joke';
+
+        async function getJoke() {
+            const jokeText = document.getElementById('jokeText');
+            const jokeBtn = document.getElementById('getJokeBtn');
+            const errorMsg = document.getElementById('errorMessage');
+            const jokeCategory = document.getElementById('jokeCategory');
+
+            // Clear previous error
+            errorMsg.style.display = 'none';
+            
+            // Show loading state
+            jokeText.innerHTML = '<span class="loading">Loading a joke...</span>';
+            jokeBtn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch joke');
+                }
+
+                const data = await response.json();
+
+                // Display the joke
+                jokeText.innerHTML = `<strong>${data.setup}</strong><br><br>${data.punchline}`;
+                jokeCategory.textContent = `Category: ${data.type}`;
+
+            } catch (error) {
+                jokeText.innerHTML = 'Oops! Could not fetch a joke.';
+                errorMsg.textContent = `Error: ${error.message}. Please try again.`;
+                errorMsg.style.display = 'block';
+                jokeCategory.textContent = '';
+                console.error('Error fetching joke:', error);
+
+            } finally {
+                jokeBtn.disabled = false;
+            }
+        }
+
+        // Fetch a joke when page loads
+        window.addEventListener('load', getJoke);
+    </script>
+</body>
+</html>
